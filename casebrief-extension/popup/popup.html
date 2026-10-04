@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CaseBrief</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="../assets/logo/casebrief-logo.svg" alt="" class="brand-mark" />
+      <div>
+        <strong>CaseBrief</strong>
+        <span class="brand-note">Local document processing</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <label class="sr-only" for="transportMode">Processing connection</label>
+      <select id="transportMode" class="mode-select" title="Processing connection">
+        <option value="native">Native host</option>
+        <option value="development">Development server</option>
+      </select>
+      <button id="themeToggle" class="icon-button" type="button" aria-label="Toggle light and dark theme" title="Toggle theme">☀</button>
+    </div>
+  </header>
+
+  <main>
+    <h1>Turn complex reports into clear case briefs.</h1>
+    <div class="tabs" role="tablist" aria-label="Processing mode">
+      <button class="tab active" type="button" role="tab" aria-selected="true" data-mode="single">Single PDF</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-mode="bulk">Bulk PDFs</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-mode="zip">ZIP</button>
+    </div>
+
+    <section class="panel">
+      <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Choose or drop documents">
+        <span id="dropIcon" class="drop-icon" aria-hidden="true">⇧</span>
+        <strong id="dropTitle">Drop a PDF here</strong>
+        <span id="dropDescription">or browse to choose one report</span>
+        <button id="browseButton" type="button" class="button button-secondary">Browse files</button>
+        <input id="fileInput" type="file" class="sr-only" aria-label="Choose files" />
+      </div>
+      <div id="selectedFiles" class="selected-files" aria-live="polite"></div>
+      <div class="actions">
+        <button id="processButton" class="button button-primary" type="button" disabled>Process PDF</button>
+        <button id="clearButton" class="button button-quiet" type="button">Clear</button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+      <div id="progress" class="progress" hidden>
+        <div id="progressLabel" class="progress-label">Preparing…</div>
+        <div class="progress-track"><div class="progress-bar"></div></div>
+      </div>
+      <div id="results" class="results" aria-live="polite"></div>
+    </section>
+    <p class="privacy-note">Files are processed locally by the selected CaseBrief connection.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

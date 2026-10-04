@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaseBrief — Bulk PDF Case Summarization</title>
+  <meta name="description" content="CaseBrief extracts structured fields from CyberTipline-style PDF reports and prepares case briefs and batch exports for human review." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="/css/app.css?v=7" />
+  <link rel="icon" type="image/svg+xml" href="/casebrief-logo.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════ -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+    <div class="brand" id="brand-logo">
+      <img src="/casebrief-logo.svg" alt="CaseBrief logo" class="brand-icon" style="width:28px;height:28px;object-fit:contain;border-radius:4px;" />
+      <span>CaseBrief</span>
+      <span class="brand-tag">v1</span>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-btn" data-open-modal="about"    id="nav-about" aria-expanded="false">About</button>
+      <button class="nav-btn" data-open-modal="howto"    id="nav-howto" aria-expanded="false">How It Works</button>
+      <button class="nav-btn" data-open-modal="feedback" id="nav-feedback" aria-expanded="false">Feedback</button>
+      <button class="nav-btn" data-open-modal="contact"  id="nav-contact" aria-expanded="false">Contact</button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ MAIN ════════════════════════════════════════ -->
+<main>
+  <div class="container">
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-heading">
+      <div class="hero-mark">
+        <img class="hero-mark-icon" src="/casebrief-logo.svg" alt="" />
+        <span>CaseBrief</span>
+      </div>
+      <div class="hero-badge" aria-hidden="true">
+        PDF field extraction · Case brief exports
+      </div>
+      <h1 id="hero-heading">Structured case briefs<br>from PDF reports</h1>
+      <p class="hero-sub">
+        Process one report, a group of PDFs, or a ZIP archive. Review extracted fields
+        and download structured summaries and batch records.
+      </p>
+      <div class="hero-actions">
+        <a class="hero-action primary" href="#processing-mode">Choose an input <span aria-hidden="true">↓</span></a>
+        <button class="hero-action" type="button" data-open-modal="howto">How it works <span aria-hidden="true">→</span></button>
+      </div>
+    </section>
+
+    <!-- Tab bar -->
+    <div class="tab-bar" id="processing-mode" role="tablist" aria-label="Processing mode">
+      <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="tab-single" data-tab="single" id="tab-btn-single">
+        📄 Single PDF
+      </button>
+      <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-bulk"   data-tab="bulk"   id="tab-btn-bulk">
+        📚 Multiple PDFs
+      </button>
+      <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-zip"    data-tab="zip"    id="tab-btn-zip">
+        🗜️ ZIP Archive
+      </button>
+    </div>
+
+    <!-- ── Single PDF tab ─────────────────────── -->
+    <div class="upload-panel">
+      <section class="tab-content active" id="tab-single" role="tabpanel" aria-labelledby="tab-btn-single">
+        <div class="drop-zone" id="drop-single" role="region" aria-label="PDF drop zone">
+          <span class="drop-icon" aria-hidden="true">📄</span>
+          <h3>Drop your PDF here</h3>
+          <p>or click to browse for a single CyberTipline report</p>
+          <button class="file-select-btn" id="pick-single" type="button" aria-label="Browse for PDF file">
+            📂 Browse Files
+          </button>
+          <input type="file" id="input-single" class="file-input" accept=".pdf" aria-label="Select PDF file" />
+        </div>
+        <div class="file-chips" id="chips-single" aria-live="polite"></div>
+        <div class="process-bar">
+          <button class="btn-process" id="process-single" type="button">⚡ Process PDF</button>
+          <button class="btn-clear"   id="clear-single"   type="button">✕ Clear</button>
+        </div>
+        <div id="alert-single" class="alert-banner hidden" role="alert" aria-live="assertive"></div>
+        <div class="progress-section" id="progress-single" role="status" aria-live="polite" aria-atomic="true">
+          <div class="progress-label">Extracting fields…</div>
+          <div class="progress-track" role="progressbar" aria-label="PDF processing in progress" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar"></div></div>
+        </div>
+        <div id="results-single" aria-live="polite"></div>
+      </section>
+
+      <!-- ── Bulk PDFs tab ──────────────────────── -->
+      <section class="tab-content" id="tab-bulk" role="tabpanel" aria-labelledby="tab-btn-bulk">
+        <div class="drop-zone" id="drop-bulk" role="region" aria-label="Multiple PDFs drop zone">
+          <span class="drop-icon" aria-hidden="true">📚</span>
+          <h3>Drop multiple PDFs here</h3>
+          <p>Upload several CyberTipline reports at once — each is processed independently</p>
+          <button class="file-select-btn" id="pick-bulk" type="button" aria-label="Browse for PDF files">
+            📂 Browse Files
+          </button>
+          <input type="file" id="input-bulk" class="file-input" accept=".pdf" multiple aria-label="Select multiple PDF files" />
+        </div>
+        <div class="file-chips" id="chips-bulk" aria-live="polite"></div>
+        <div class="process-bar">
+          <button class="btn-process" id="process-bulk" type="button">⚡ Process Files</button>
+          <button class="btn-clear"   id="clear-bulk"   type="button">✕ Clear</button>
+        </div>
+        <div id="alert-bulk" class="alert-banner hidden" role="alert" aria-live="assertive"></div>
+        <div class="progress-section" id="progress-bulk" role="status" aria-live="polite" aria-atomic="true">
+          <div class="progress-label">Processing batch…</div>
+          <div class="progress-track" role="progressbar" aria-label="Batch processing in progress" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar"></div></div>
+        </div>
+        <div id="results-bulk" aria-live="polite"></div>
+      </section>
+
+      <!-- ── ZIP tab ───────────────────────────── -->
+      <section class="tab-content" id="tab-zip" role="tabpanel" aria-labelledby="tab-btn-zip">
+        <div class="drop-zone" id="drop-zip" role="region" aria-label="ZIP archive drop zone">
+          <span class="drop-icon" aria-hidden="true">🗜️</span>
+          <h3>Drop a ZIP archive here</h3>
+          <p>Upload a ZIP containing multiple PDFs — non-PDF files are ignored safely</p>
+          <button class="file-select-btn" id="pick-zip" type="button" aria-label="Browse for ZIP file">
+            📂 Browse Files
+          </button>
+          <input type="file" id="input-zip" class="file-input" accept=".zip" aria-label="Select ZIP archive" />
+        </div>
+        <div class="file-chips" id="chips-zip" aria-live="polite"></div>
+        <div class="process-bar">
+          <button class="btn-process" id="process-zip" type="button">⚡ Process ZIP</button>
+          <button class="btn-clear"   id="clear-zip"   type="button">✕ Clear</button>
+        </div>
+        <div id="alert-zip" class="alert-banner hidden" role="alert" aria-live="assertive"></div>
+        <div class="progress-section" id="progress-zip" role="status" aria-live="polite" aria-atomic="true">
+          <div class="progress-label">Extracting ZIP &amp; processing…</div>
+          <div class="progress-track" role="progressbar" aria-label="ZIP processing in progress" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar"></div></div>
+        </div>
+        <div id="results-zip" aria-live="polite"></div>
+      </section>
+    </div>
+
+  </div><!-- /container -->
+</main>
+
+<!-- ══ FOOTER ══════════════════════════════════════ -->
+<footer role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-brand-name">
+          <img src="/casebrief-logo.svg" alt="" style="width:18px;height:18px;object-fit:contain;border-radius:3px;vertical-align:middle;margin-right:6px;" />CaseBrief
+        </span>
+        <span class="footer-brand-desc">
+          Structured field extraction and batch exports for CyberTipline-style PDF reports.
+        </span>
+      </div>
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <span class="footer-col-title">Product</span>
+          <button class="footer-link" data-open-modal="about">About</button>
+          <button class="footer-link" data-open-modal="howto">How It Works</button>
+          <button class="footer-link" data-open-modal="about" id="features-link">Features</button>
+        </div>
+        <div class="footer-col">
+          <span class="footer-col-title">Support</span>
+          <button class="footer-link" data-open-modal="howto" id="docs-link">Documentation</button>
+          <button class="footer-link" data-open-modal="feedback">Feedback</button>
+          <button class="footer-link" data-open-modal="contact">Contact Developer</button>
+        </div>
+        <div class="footer-col">
+          <span class="footer-col-title">Legal</span>
+          <button class="footer-link" data-open-modal="privacy">Privacy</button>
+          <button class="footer-link" data-open-modal="terms">Terms &amp; Disclaimer</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 CaseBrief — Internal tool. Not for public distribution.</span>
+      <div class="footer-legal">
+        <button class="footer-link" data-open-modal="privacy">Privacy</button>
+        <button class="footer-link" data-open-modal="terms">Terms</button>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ MODALS ═══════════════════════════════════════ -->
+
+<!-- ── About ─────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-about" data-modal-name="about" role="dialog" aria-modal="true" aria-labelledby="modal-about-title">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-about-title">About CaseBrief</span>
+      <button class="modal-close" data-close-modal="about" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="about-section">
+        <h3>What is CaseBrief?</h3>
+        <p>
+          CaseBrief is a document-processing utility for extracting labeled case information
+          from CyberTipline-style PDF reports. It organizes selected fields into a consistent
+          brief so a reviewer can find and check relevant details without repeatedly searching
+          the full document.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>The problem it solves</h3>
+        <p>
+          Finding the same details across long or repeated reports takes time. A structured brief
+          groups extracted values under consistent fields, making records easier to scan, compare,
+          and review alongside their source documents. It supports review; it does not make
+          investigative decisions.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Upload modes</h3>
+        <p>CaseBrief supports three input types:</p>
+        <ul style="margin:.5rem 0 0 1.1rem;line-height:1.8;">
+          <li><strong>Single PDF</strong> — process one report and view its extracted record.</li>
+          <li><strong>Multiple PDFs</strong> — submit several reports together; each document is processed independently.</li>
+          <li><strong>ZIP archive</strong> — process PDFs contained in one ZIP; non-PDF entries are ignored.</li>
+        </ul>
+        <p style="margin-top:.6rem;">
+          In a batch, a document that cannot be processed is reported as a failure; other documents
+          continue. The system produces a structured Case Brief PDF for each successful document,
+          plus a Summary ZIP, Excel workbook, and JSON processing status for batches.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Structured extraction</h3>
+        <p>
+          CaseBrief uses deterministic rules to match supported labels and values in each document.
+          It does not use AI to interpret reports. Missing values are shown as <code>N/A</code> rather
+          than filled in, and each document has its own result or failure record.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Features</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:.84rem;line-height:1.6;">
+          <tbody>
+            <tr><td style="padding:.35rem .6rem .35rem 0;width:36%;font-weight:600;color:var(--brand);">Single PDF processing</td><td style="color:var(--text-muted);">Process one PDF, review its fields, and download its Case Brief PDF.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">Multiple PDF processing</td><td style="color:var(--text-muted);">Submit several PDFs together; each receives an independent result.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">ZIP batch processing</td><td style="color:var(--text-muted);">Process PDFs in a ZIP archive. Non-PDF entries are ignored.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">Structured field extraction</td><td style="color:var(--text-muted);">Deterministic rules match supported report labels; absent values are not guessed.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">Case Brief PDF generation</td><td style="color:var(--text-muted);">Download a structured PDF for each successfully processed document.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">Batch Summary ZIP download</td><td style="color:var(--text-muted);">Download successful Case Brief PDFs together in one ZIP archive.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">Excel export</td><td style="color:var(--text-muted);">Get batch records in a workbook, with failed documents listed separately.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">JSON processing status</td><td style="color:var(--text-muted);">Download structured success and failure details for the batch.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">Failure isolation</td><td style="color:var(--text-muted);">A document failure is recorded without stopping other batch documents.</td></tr>
+            <tr><td style="padding:.35rem .6rem .35rem 0;font-weight:600;color:var(--brand);">Dark / light interface</td><td style="color:var(--text-muted);">Switch themes using the top-right toggle; the choice is remembered.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── How It Works ───────────────────────────────── -->
+<div class="modal-backdrop" id="modal-howto" data-modal-name="howto" role="dialog" aria-modal="true" aria-labelledby="modal-howto-title">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-howto-title">How It Works</span>
+      <button class="modal-close" data-close-modal="howto" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Workflow steps -->
+      <div class="steps">
+        <div class="step" tabindex="0">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Upload</h4>
+            <p>Select one PDF, several PDFs, or a ZIP archive.</p>
+            <span class="step-hint">Drag files into the matching area or choose them with the file browser.</span>
+          </div>
+        </div>
+        <div class="step" tabindex="0">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Extract</h4>
+            <p>CaseBrief reads embedded text and applies its extraction rules.</p>
+            <span class="step-hint">Image-only scanned PDFs are not supported.</span>
+          </div>
+        </div>
+        <div class="step" tabindex="0">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Validate</h4>
+            <p>Supported labels are matched and normalized where possible.</p>
+            <span class="step-hint">Missing values remain <code>N/A</code>; CaseBrief does not guess.</span>
+          </div>
+        </div>
+        <div class="step" tabindex="0">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Generate</h4>
+            <p>Each successful document gets a structured Case Brief PDF.</p>
+            <span class="step-hint">The PDF contains that document's extracted fields.</span>
+          </div>
+        </div>
+        <div class="step" tabindex="0">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Export</h4>
+            <p>After a batch completes, download the available outputs:</p>
+            <ul style="margin:.4rem 0 0 1rem;line-height:1.8;font-size:.84rem;color:var(--text-muted);">
+              <li><strong>Summary ZIP</strong> — successful Case Brief PDFs in one archive.</li>
+              <li><strong>Excel (.xlsx)</strong> — successful records and failed-document details in a workbook.</li>
+              <li><strong>Status JSON</strong> — structured processing results, including failures.</li>
+            </ul>
+            <span class="step-hint">Batch outputs reflect the completed processing results.</span>
+          </div>
+        </div>
+        <div class="step" tabindex="0">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <h4>Review</h4>
+            <p>Review results on screen and compare them with the source document.</p>
+            <span class="step-hint">Extraction can be incomplete for non-standard reports.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documentation section -->
+      <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;" />
+      <h3 style="font-size:1rem;margin-bottom:1rem;">Documentation</h3>
+
+      <div class="about-section">
+        <h3>Supported input types</h3>
+        <ul style="margin:.4rem 0 0 1rem;line-height:1.8;font-size:.84rem;color:var(--text-muted);">
+          <li><strong>PDF</strong> — one file or multiple files. The PDF must contain readable embedded text; scanned image-only files are not supported.</li>
+          <li><strong>ZIP</strong> — an archive containing PDFs. Non-PDF entries are ignored.</li>
+        </ul>
+      </div>
+
+      <div class="about-section">
+        <h3>Workflows</h3>
+        <p style="font-size:.84rem;font-weight:600;margin-bottom:.25rem;">Single PDF</p>
+        <p style="font-size:.84rem;color:var(--text-muted);">Choose a PDF, select Process PDF, review its result, then download the Case Brief PDF.</p>
+        <p style="font-size:.84rem;font-weight:600;margin:.75rem 0 .25rem;">Multiple PDFs</p>
+        <p style="font-size:.84rem;color:var(--text-muted);">Choose multiple PDFs, select Process Files, review each result, then download the available batch exports. A failure in one file does not stop the others.</p>
+        <p style="font-size:.84rem;font-weight:600;margin:.75rem 0 .25rem;">ZIP archive</p>
+        <p style="font-size:.84rem;color:var(--text-muted);">Choose a ZIP, select Process ZIP, review the PDF results, and download the available batch exports.</p>
+      </div>
+
+      <div class="about-section">
+        <h3>Output files</h3>
+        <ul style="margin:.4rem 0 0 1rem;line-height:1.9;font-size:.84rem;color:var(--text-muted);">
+          <li><strong>Case Brief PDF</strong> — structured fields for one successful document.</li>
+          <li><strong>Batch Summary ZIP</strong> — successful Case Brief PDFs from a batch.</li>
+          <li><strong>Excel workbook</strong> — a row for each successful record and a separate sheet for failed documents.</li>
+          <li><strong>JSON status</strong> — structured details about successful and failed documents in the batch.</li>
+        </ul>
+      </div>
+
+      <div class="about-section">
+        <h3>What happens when a document fails</h3>
+        <p style="font-size:.84rem;color:var(--text-muted);">
+          A document that cannot be processed is listed with its filename and a failure reason. Other
+          documents continue independently. Failed records are included in the JSON status and the
+          workbook's failed-documents sheet; no Case Brief PDF is generated for a failed document.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Excel output — column guide</h3>
+        <p style="font-size:.84rem;color:var(--text-muted);">
+          The "Case Brief Summaries" sheet contains one row per successfully processed document.
+          Columns: <strong>Tipline No.</strong> (report ID), <strong>Suspect Name</strong>,
+          <strong>Recent Suspect IP</strong>, <strong>Geo City</strong> (highlighted in red),
+          Priority, Reporting ESP, Incident Type, Suspect Age/Phone/Username,
+          Recipient Name/Age/Phone/Username, Content Rating, Geo Postal Code.
+          Fields that were not found in the source document are shown as <code>N/A</code>.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>JSON status output</h3>
+        <p style="font-size:.84rem;color:var(--text-muted);">
+          The batch status JSON contains <code>successfulRecords</code> and <code>failedRecords</code>
+          arrays. Successful records contain extracted fields; failed records contain available
+          document identifiers and a failure reason. Use it to review processing outcomes or as
+          structured input to another tool.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Limitations</h3>
+        <ul style="margin:.4rem 0 0 1rem;line-height:1.9;font-size:.84rem;color:var(--text-muted);">
+          <li>Image-only or scanned PDFs are not supported — extraction requires embedded text.</li>
+          <li>Extraction accuracy depends on the document following a recognizable CyberTipline-style structure. Non-standard formats may produce incomplete results.</li>
+          <li>Missing fields remain <code>N/A</code>. No value is invented or inferred when a field is absent.</li>
+          <li>CaseBrief does not verify, validate, or cross-check extracted data against any external database.</li>
+          <li>The generated Case Brief PDF is a formatted output of what was extracted — it is not an investigative conclusion.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Feedback ───────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-feedback" data-modal-name="feedback" role="dialog" aria-modal="true" aria-labelledby="modal-feedback-title">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-feedback-title">Submit Feedback</span>
+      <button class="modal-close" data-close-modal="feedback" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.25rem;">
+        Your feedback helps improve CaseBrief. Name and email are optional.
+      </p>
+      <form id="feedback-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fb-name">Name <span style="color:var(--text-dim)">(optional)</span></label>
+            <input type="text" id="fb-name" name="name" class="form-control" placeholder="Your name" maxlength="100" autocomplete="name" />
+          </div>
+          <div class="form-group">
+            <label for="fb-email">Email <span style="color:var(--text-dim)">(optional)</span></label>
+            <input type="email" id="fb-email" name="email" class="form-control" placeholder="your@email.com" maxlength="254" autocomplete="email" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="fb-category">Category <span style="color:var(--error)">*</span></label>
+          <select id="fb-category" name="category" class="form-control" required>
+            <option value="">— Select a category —</option>
+            <option value="bug">🐛 Bug Report</option>
+            <option value="feature">💡 Feature Request</option>
+            <option value="general">💬 General Feedback</option>
+            <option value="other">📌 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fb-message">Message <span style="color:var(--error)">*</span></label>
+          <textarea id="fb-message" name="message" class="form-control" placeholder="Describe the issue or share your thoughts…" maxlength="5000" required rows="5"></textarea>
+        </div>
+        <div id="feedback-msg" class="alert-banner hidden" role="alert" aria-live="assertive"></div>
+        <button type="submit" class="btn-submit" id="feedback-submit">Submit Feedback</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Contact ───────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-contact" data-modal-name="contact" role="dialog" aria-modal="true" aria-labelledby="modal-contact-title">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-contact-title">Contact Developer</span>
+      <button class="modal-close" data-close-modal="contact" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.25rem;">
+        For questions or feedback about CaseBrief, contact the developer by email.
+      </p>
+      <div class="contact-links">
+        <a class="contact-link" href="mailto:monudhakad2332005@gmail.com" id="contact-email-link">
+          <span class="contact-link-icon">📧</span>
+          <div>
+            <div style="font-weight:600;">Email</div>
+            <div style="font-size:.78rem;color:var(--text-muted);">monudhakad2332005@gmail.com</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Privacy ───────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-privacy" data-modal-name="privacy" role="dialog" aria-modal="true" aria-labelledby="modal-privacy-title">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-privacy-title">Privacy</span>
+      <button class="modal-close" data-close-modal="privacy" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="about-section">
+        <h3>Document handling</h3>
+        <p>
+          When you submit a document, your browser sends it to the server hosting this CaseBrief
+          instance for processing. The hosting environment and its configuration determine how uploads,
+          temporary files, logs, backups, and generated outputs are handled. CaseBrief does not promise
+          encryption or automatic deletion of uploaded data.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Feedback submissions</h3>
+        <p>
+          Feedback submitted through the form is saved by the application to a file on the server.
+          Name and email are optional. Consider this when using a shared or public deployment.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Third-party requests</h3>
+        <p>
+          The page stylesheet imports fonts from Google Fonts, so opening the page may request font
+          resources from Google. Review the deployment's network and privacy requirements before use.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Demonstrations and sensitive information</h3>
+        <p>
+          Avoid uploading real sensitive documents to an untrusted or public deployment. Use synthetic
+          or redacted data for demonstrations. Only upload documents you are authorized to process, and
+          confirm the server's handling practices with its operator.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Deployment responsibility</h3>
+        <p>
+          Privacy and security depend on how and where CaseBrief is deployed. Do not assume that any
+          certification or particular security control applies unless the deployment operator confirms it.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Terms & Disclaimer ─────────────────────────── -->
+<div class="modal-backdrop" id="modal-terms" data-modal-name="terms" role="dialog" aria-modal="true" aria-labelledby="modal-terms-title">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-terms-title">Terms &amp; Disclaimer</span>
+      <button class="modal-close" data-close-modal="terms" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="about-section">
+        <h3>Purpose and limits</h3>
+        <p>
+          CaseBrief is a document-processing and summarization utility that organizes information
+          extracted from PDFs for review. It is not an investigative decision-making system, a legal
+          advice system, or a replacement for human review. It does not independently determine
+          guilt, violations, or investigative priority.
+        </p>
+      </div>
+
+      <div class="about-section">
+        <h3>Review the source</h3>
+        <ul style="margin:.4rem 0 0 1rem;line-height:1.9;font-size:.84rem;color:var(--text-muted);">
+          <li>Extracted information may be incomplete or incorrect.</li>
+          <li>Review all extracted information against the original source document.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════ -->
+<script src="/js/app.js?v=4"></script>
+</body>
+</html>

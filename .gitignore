@@ -1,0 +1,41 @@
+
+
+# Maven
+target/
+*.class
+
+# Release packages (publish through GitHub Releases)
+dist/
+*.exe
+*.zip
+
+# IDE
+.idea/
+.vscode/
+
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+application-local.properties
+
+# Generated case data and reports
+generated-reports/
+case-data/
+*.case.pdf
+
+# Temporary files
+*.tmp
+*.temp
+
+# Real tipline test document - never publish
+src/test/resources/243063858.pdf

@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "CaseBrief",
+  "version": "1.0.0",
+  "description": "Local structured case-brief processing for PDF reports.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwLFH0nwANtcAEs6tGTo7LqNq+VAiq6l3leL8+G3wUA/8p9NiD9zt8jOdvuSoLZ297cuFydhdc5NqaJxv5vIdC9YiPVBibvplDw9l6JNrPmsS36JxZ+nxBjP0XNddyZf/e2wtFOUzlNrFS+O0HY+F2zUvS0h0wEMMUoAMg8Pzn4kZXaCvG4TaiLGBfrzXdOwqTtF9dkmINk1SNWKp4pa1nTQfBFM0DZqTSWit92sZv0TOoxeeYKWmfyI6S1PWzQDSY4l3Cli7UD8+iwhHeT/S1J2hAg8IavhFvebsSdtY8C3yzkLzuLheXCSIqiKBN4Z6ybHkXTTKbk23/IhFvY97lwIDAQAB",
+  "permissions": [
+    "nativeMessaging",
+    "storage"
+  ],
+  "optional_host_permissions": [
+    "http://localhost:8080/*",
+    "http://127.0.0.1:8080/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_title": "CaseBrief",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "128": "assets/icons/casebrief.png"
+    }
+  },
+  "icons": {
+    "128": "assets/icons/casebrief.png"
+  }
+}
